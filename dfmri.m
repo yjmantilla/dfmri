@@ -5,8 +5,22 @@ clc;
 clear all;
 clear BATCH;
 
-conn_path = 'C:/Users/user/Desktop/code/spm12';
-spm_path = 'C:/Users/user/Desktop/code/conn';
+data_path = 'Z:\dfmri\SAN\Rest';
+MyFolderInfo = dir(data_path);
+files = {MyFolderInfo.name}; % i hate matlab... 
+file_names = {};
+j = 1;
+bytes = {MyFolderInfo.bytes};
+
+for i = 1:length(files)
+    if bytes{i}> 0
+        file_names{j} = files{i};
+        j = j + 1;
+    end
+end
+
+conn_path = 'Y:/code/spm12';
+spm_path = 'Y:/code/conn';
 
 addpath(genpath(conn_path));
 addpath(genpath(spm_path));
@@ -16,7 +30,10 @@ sitid = 'KKI';
 tr = 2.5;
 vol = 152;
 
-% we could create the list of filenames algorithmically
+%data_path = 
+
+% we could create the list of filenames algorithmically --> actually this
+% is fundamental for the workflow
 nsubs = 3;
 nses = 1;
 san = {'_KKI_1779922_15.nii','_KKI_2903997_44.nii','_KKI_3699991_57.nii'};
@@ -55,7 +72,7 @@ conn_batch(BATCH);
 %Structural
 for sub = 1:BATCH.Setup.nsubjects
     % for default structural conn file:
-    filename = 'C:/Users/user/Desktop/code/conn/utils/surf/referenceT1.nii';
+    filename = 'Y:/code/conn/utils/surf/referenceT1.nii';
     
     % Anatomical
     %filename = [root_path '/' selected_path '/' anat_path selected_files{i}];
@@ -80,7 +97,7 @@ conn_batch(BATCH);
 
 window_length = 60;
 overlap = 0.5;
-onsets = 0:window_length*overlap:tr*vol;
+onsets = 0:window_length*overlap:tr*vol; % should be length of something here?
 nconditions = length(onsets);
 BATCH.Setup.conditions.names=[{'rest'}, arrayfun(@(n)sprintf('rest x Time%d',n),1:nconditions,'uni',0)];
 for sub = 1:BATCH.Setup.nsubjects %{ncondition}{nsub}{nses}
@@ -116,9 +133,12 @@ BATCH.Denoising.despiking = 0;
 BATCH.Denoising.confounds.names = {'White Matter','CSF','Effect of rest'};
 conn_batch(BATCH);
 
-conn
-conn('load',fullfile(root_path,name));
-conn gui_results
+
+% Crear todas las metricas de conectividad funcional
+
+%conn
+%conn('load',fullfile(root_path,name));
+%conn gui_results
 % do note that rest (in effect of rest) here could be any condition
 
 % %Set the type of analyses to run
